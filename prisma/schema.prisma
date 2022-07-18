@@ -43,8 +43,9 @@ model Vehicle {
 }
 
 model SlotStatus {
-  id     Int     @id @default(autoincrement())
-  status Boolean @default(false)
+  id        Int      @id @default(autoincrement())
+  status    Boolean  @default(false)
+  createdAt DateTime @default(now())
 
   slot_id Int?
   slot    ParkingSlot? @relation(fields: [slot_id], references: [id], onDelete: Cascade)

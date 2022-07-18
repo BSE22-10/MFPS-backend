@@ -42,8 +42,15 @@ router.post(
   }
 );
 
-router.put("", async (req, res) => {
-  const {} = req.body;
+router.put("", body("number_plate").isString(), async (req, res) => {
+  try {
+    const {} = req.body;
+  } catch (error) {
+    updateExitingVehicle(req.body);
+    res.status(201).json({
+      message: "Vehicle updated",
+    });
+  }
 });
 
 export default router;

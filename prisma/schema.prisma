@@ -1,0 +1,51 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Floor {
+  id          Int           @id @default(autoincrement())
+  no_of_slots Int
+  ParkingSlot ParkingSlot[]
+}
+
+model ParkingSlot {
+  id Int @id @default(autoincrement())
+
+  floor      Floor?       @relation(fields: [floor_id], references: [id], onDelete: Cascade)
+  floor_id   Int?
+  SlotStatus SlotStatus[]
+}
+
+model Payment {
+  id      Int       @id @default(autoincrement())
+  bill    Int?
+  status  Boolean   @default(false)
+  Vehicle Vehicle[]
+
+}
+
+model Vehicle {
+  id             Int       @id @default(autoincrement())
+  number_plate   String
+  arrival_time   DateTime  @default(now())
+  departing_time DateTime?
+
+  payment    Payment? @relation(fields: [payment_id], references: [id], onDelete: Cascade)
+  payment_id Int?
+}
+
+model SlotStatus {
+  id     Int     @id @default(autoincrement())
+  status Boolean @default(false)
+
+  slot_id Int?
+  slot    ParkingSlot? @relation(fields: [slot_id], references: [id], onDelete: Cascade)
+}

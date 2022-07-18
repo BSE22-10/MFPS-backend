@@ -24,7 +24,38 @@ async function checkPaymentStatus(vehicle_id) {
   }
 }
 
-export async function getVehicles(res) {
+async function checkIfVehicleExists(number_plate) {
+  try {
+    const vehicle = await prisma.vehicle.findFirst({
+      where: {
+        number_plate: number_plate,
+      },
+    });
+    if (vehicle) {
+      return true;
+    } else {
+      console.log("failed");
+      throw new Error("Vehicle does not exist");
+    }
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function getVehicleId(number_plate) {
+  const vehicles = await prisma.vehicle.findMany({
+    where: {
+      number_plate: number_plate,
+    },
+    orderBy: {
+      arrival_time: "asc",
+    },
+  });
+  console.log(vehicles);
+  return vehicles[0].id;
+}
+
+export async function getVehicles() {
   const vehicles = await prisma.vehicle.findMany({});
   return vehicles;
 }
@@ -48,23 +79,31 @@ export async function createVehicle(data) {
   });
 }
 
-export async function updateExitingVehicle(number_plate, departing_time) {
-  const getVehicleId = await prisma.vehicle.findMany({
-    where: {
-      number_plate: number_plate,
-    },
-    orderBy: {
-      arrival_time: "asc",
-    },
-  });
-  await prisma.vehicle.update({
-    where: {
-      id: getVehicleId[0].id,
-    },
-    data: {
-      departing_time: departing_time,
-    },
-  });
+export async function updateExitingVehicle(number_plate) {
+  //   console.log(data);
+  number_plate = String(number_plate);
+  console.log(number_plate);
+  if (await checkIfVehicleExists(number_plate)) {
+    await prisma.vehicle.update({
+      where: {
+        id: await getVehicleId(number_plate),
+      },
+      data: {
+        departing_time: new Date(),
+      },
+    });
+    return {
+      message: "Vehicle updated",
+    };
+  } else {
+    return {
+      message: "Car does not exist",
+    };
+  }
+}
+
+export async function makePayment(number_plate) {
+  checkPaymentStatus();
 }
 
 export async function deleteVehicle(id) {

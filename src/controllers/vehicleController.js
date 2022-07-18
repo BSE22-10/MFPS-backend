@@ -21,7 +21,7 @@ router.get("/", async (req, res) => {
 
 router.post(
   "/",
-  body("number_plate").isString(),
+  body("number_plate", "Invalid number").isString(),
   //   body("arrival_time", "Invalid time").matches(
   //     "(d{4})-(d{2})-(d{2}) (d{2}):(d{2}):(d{2})"
   //   "\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(?:\.\d+)?Z?"
@@ -32,7 +32,7 @@ router.post(
       if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
       }
-      createVehicle(req.body);
+      await createVehicle(req.body);
       res.status(201).json({
         message: "Vehicle created",
       });

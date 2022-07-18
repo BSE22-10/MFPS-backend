@@ -3,7 +3,7 @@ import {
   getSlots,
   createSlot,
   deleteSlot,
-  updateSlot,
+  updateSlotStatus,
 } from "../services/index.js";
 import { body, query, validationResult } from "express-validator";
 
@@ -32,9 +32,6 @@ router.post(
         return res.status(400).json({ errors: errors.array() });
       }
       res.json(await createSlot(Number(req.query.id)));
-      //   res.status(201).json({
-      //     message: "Slot created",
-      //   });
     } catch (error) {
       res.status(400).json({ error: error.message || error });
     }

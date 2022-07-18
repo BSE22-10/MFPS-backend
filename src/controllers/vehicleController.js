@@ -11,8 +11,8 @@ const router = express.Router();
 const validator = {};
 router.get("/", async (req, res) => {
   try {
-    res.json(getVehicles);
-    res.sendStatus(200);
+    res.json(await getVehicles());
+    // res.sendStatus(200);
   } catch (e) {
     console.log(e);
     res.json({ error: e.message || err });
@@ -42,14 +42,20 @@ router.post(
   }
 );
 
-router.put("", body("number_plate").isString(), async (req, res) => {
+router.put("/update", body("number_plate").isString(), async (req, res) => {
   try {
-    const {} = req.body;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    console.log(req.body.number_plate);
+    res.json(await updateExitingVehicle(req.body.number_plate));
+    // res.status(201).json({
+    //   message: "Vehicle updated",
+    // });
   } catch (error) {
-    updateExitingVehicle(req.body);
-    res.status(201).json({
-      message: "Vehicle updated",
-    });
+    console.log(error);
+    res.status(400).json({ error: error.message || error });
   }
 });
 

@@ -2,6 +2,8 @@ import express from "express";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
 import routes from "./src/controllers/vehicleController.js";
+import floorRoutes from "./src/controllers/floorController.js";
+import slotRoutes from "./src/controllers/slotController.js";
 import cors from "cors";
 dotenv.config();
 
@@ -21,6 +23,8 @@ app.use(cors());
 const port = process.env.PORT;
 
 app.use("/vehicle", routes);
+app.use("/floors", floorRoutes);
+app.use("/slots", slotRoutes);
 
 app.get("/", (req, res) => {
   res.send("Multifloor parking system");

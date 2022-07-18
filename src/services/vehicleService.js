@@ -4,6 +4,19 @@ const prisma = new PrismaClient();
 
 var payment = false;
 
+async function makeBill(payment_id, arrivalTime, departingTime) {
+  var hours = Math.abs(departingTime - arrivalTime) / 36e5;
+  console.log(hours);
+  await prisma.payment.update({
+    where: {
+      id: payment_id,
+    },
+    data: {
+      bill: Math.floor(hours * 200),
+    },
+  });
+}
+
 async function checkPaymentStatus(vehicle_id) {
   if (payment) {
     await prisma.payment.update({
@@ -84,7 +97,7 @@ export async function updateExitingVehicle(number_plate) {
   number_plate = String(number_plate);
   console.log(number_plate);
   if (await checkIfVehicleExists(number_plate)) {
-    await prisma.vehicle.update({
+    const vehicle = await prisma.vehicle.update({
       where: {
         id: await getVehicleId(number_plate),
       },
@@ -92,6 +105,12 @@ export async function updateExitingVehicle(number_plate) {
         departing_time: new Date(),
       },
     });
+    console.log(vehicle);
+    await makeBill(
+      vehicle.payment_id,
+      vehicle.arrival_time,
+      vehicle.departing_time
+    );
     return {
       message: "Vehicle updated",
     };

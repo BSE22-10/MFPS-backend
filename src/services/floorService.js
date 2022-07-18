@@ -31,15 +31,23 @@ export const createFloor = async (no_of_slots) => {
   });
 };
 
-export const updateFloor = async (no_of_slots) => {
-  try {
-    await prisma.floor.update({
-      data: {
-        no_of_slots: no_of_slots,
-      },
-    });
-  } catch (error) {
-    console.log(error);
+export const updateFloor = async (id, no_of_slots) => {
+  if (await checkIfFloorExists(id)) {
+    try {
+      await prisma.floor.update({
+        data: {
+          no_of_slots: no_of_slots,
+        },
+        where: {
+          id: id,
+        },
+      });
+      return {
+        message: "Floor updated",
+      };
+    } catch (error) {
+      console.log(error);
+    }
   }
 };
 

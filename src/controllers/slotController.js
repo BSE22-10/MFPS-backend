@@ -1,9 +1,9 @@
 import express from "express";
 import {
-  getFloors,
-  createFloor,
-  deleteFloor,
-  updateFloor,
+  getSlots,
+  createSlot,
+  deleteSlot,
+  updateSlot,
 } from "../services/index.js";
 import { body, query, validationResult } from "express-validator";
 
@@ -11,7 +11,7 @@ const router = express.Router();
 
 router.get("/", async (req, res) => {
   try {
-    res.json(await getVehicles());
+    res.json(await getSlots());
   } catch (e) {
     console.log(e);
     res.json({ error: e.message || err });
@@ -20,7 +20,7 @@ router.get("/", async (req, res) => {
 
 router.post(
   "/",
-  body("number_plate", "Invalid number plate").isString(),
+  query("id", "Invalid id").isNumeric(),
   //   body("arrival_time", "Invalid time").matches(
   //     "(d{4})-(d{2})-(d{2}) (d{2}):(d{2}):(d{2})"
   //   "\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(?:\.\d+)?Z?"
@@ -31,12 +31,12 @@ router.post(
       if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
       }
-      createVehicle(req.body);
-      res.status(201).json({
-        message: "Vehicle created",
-      });
+      res.json(await createSlot(Number(req.query.id)));
+      //   res.status(201).json({
+      //     message: "Slot created",
+      //   });
     } catch (error) {
-      console.log(error);
+      res.status(400).json({ error: error.message || error });
     }
   }
 );

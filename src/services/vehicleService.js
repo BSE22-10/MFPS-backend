@@ -2,8 +2,9 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-var payment = false;
+var payment = true;
 
+//Gets the bill basing on the time spent in the parking
 async function makeBill(payment_id, arrivalTime, departingTime) {
   var hours = Math.abs(departingTime - arrivalTime) / 36e5;
   console.log(hours);
@@ -18,7 +19,9 @@ async function makeBill(payment_id, arrivalTime, departingTime) {
   return payment.bill;
 }
 
-async function checkPaymentStatus(vehicle_id) {
+//Updates the payment status of the vehicle
+async function updatePayment(number_plate) {
+  var vehicle_id = await getVehicleId(number_plate);
   if (payment) {
     await prisma.payment.update({
       where: {
@@ -106,8 +109,6 @@ export async function updateExitingVehicle(number_plate) {
         departing_time: new Date(),
       },
     });
-    console.log(vehicle);
-
     return {
       message: `Your bill is ${await makeBill(
         vehicle.payment_id,
@@ -123,7 +124,7 @@ export async function updateExitingVehicle(number_plate) {
 }
 
 export async function makePayment(number_plate) {
-  checkPaymentStatus();
+  await updatePayment(number_plate);
 }
 
 export async function deleteVehicle(id) {
@@ -132,4 +133,32 @@ export async function deleteVehicle(id) {
       id: id,
     },
   });
+}
+
+export async function checkPaymentStatus(number_plate) {
+  try {
+    const vehicles = await prisma.vehicle.findMany({
+      where: {
+        number_plate: number_plate,
+      },
+      orderBy: {
+        arrival_time: "asc",
+      },
+    });
+    const payment = await prisma.payment.findFirst({
+      where: {
+        id: vehicles[0].payment_id,
+        status: true,
+      },
+    });
+    if (payment) {
+      return {
+        message: "Payment successful",
+      };
+    } else {
+      throw new Error("No payment made");
+    }
+  } catch (error) {
+    throw error;
+  }
 }

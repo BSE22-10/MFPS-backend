@@ -14,10 +14,33 @@ const checkIfFloorIsFull = async (floor_id) => {
       id: floor_id,
     },
   });
-  if (floor.no_of_slots === slots.length()) {
+  var num = floor === null ? 0 : floor.no_of_slots;
+  console.log(slots);
+  if (num === 0 || slots.length === 0) {
+    return false;
+  } else if (num === slots.length) {
     return true;
   } else {
+    console.log("Not full yet");
     return false;
+  }
+};
+
+const checkIfFloorExists = async (floor_id) => {
+  try {
+    console.log("fLOOR");
+    const floor = await prisma.floor.findFirst({
+      where: {
+        id: floor_id,
+      },
+    });
+    if (floor) {
+      return true;
+    } else {
+      throw new Error("Floor does not exist");
+    }
+  } catch (error) {
+    throw error;
   }
 };
 
@@ -30,51 +53,70 @@ const checkIfSlotExists = async (id) => {
   if (floor) {
     return true;
   } else {
-    throw new Error({
-      status: 400,
-      message: "Slot does not exist",
-    });
+    throw new Error("Slot does not exist");
   }
 };
 
 export const getSlots = async () => {
-  const floors = await prisma.floor.findMany({});
+  const floors = await prisma.parkingSlot.findMany({});
   return floors;
 };
 
-export const createSlot = async (floor_id, no_of_slots) => {
-  if (await checkIfFloorIsFull(floor_id)) {
-    await prisma.floor.create({
-      data: {
-        no_of_slots: no_of_slots,
-      },
-    });
+export const createSlot = async (floor_id) => {
+  try {
+    if (
+      ((await checkIfFloorExists(floor_id)) === true &&
+        (await checkIfFloorIsFull(floor_id))) === false
+    ) {
+      await prisma.parkingSlot.create({
+        data: {
+          floor: {
+            connect: {
+              id: floor_id,
+            },
+          },
+        },
+      });
+    }
+    return { message: "Parking slot created" };
+  } catch (error) {
+    throw error;
   }
 };
 
-export const updateSlot = async (id, no_of_slots) => {
+export const updateSlotStatus = async (id, status) => {
   if (await checkIfSlotExists(id)) {
     try {
-      await prisma.floor.update({
+      // await prisma.slotStatus.findFirst({
+      //     where:{
+      //         slo
+      //     }
+      // })
+      await prisma.slotStatus.create({
         data: {
-          no_of_slots: no_of_slots,
-        },
-        where: {
-          id: id,
+          status: status,
+          slot: {
+            connect: {
+              id: id,
+            },
+          },
         },
       });
       return {
-        message: "Slot updated",
+        message:
+          status === true
+            ? `Car has parked on slot ${id}`
+            : `Car has left slot ${id}`,
       };
     } catch (error) {
-      console.log(error);
+      throw error;
     }
   }
 };
 
 export const deleteSlot = async (id) => {
   try {
-    await prisma.floor.delete({
+    await prisma.parkingSlot.delete({
       where: {
         id: id,
       },

@@ -11,10 +11,7 @@ const checkIfFloorExists = async (id) => {
   if (floor) {
     return true;
   } else {
-    throw new Error({
-      status: 400,
-      message: "Floor does not exists",
-    });
+    throw new Error("Floor does not exist");
   }
 };
 

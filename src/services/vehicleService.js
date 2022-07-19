@@ -7,7 +7,7 @@ var payment = false;
 async function makeBill(payment_id, arrivalTime, departingTime) {
   var hours = Math.abs(departingTime - arrivalTime) / 36e5;
   console.log(hours);
-  await prisma.payment.update({
+  const payment = await prisma.payment.update({
     where: {
       id: payment_id,
     },
@@ -15,6 +15,7 @@ async function makeBill(payment_id, arrivalTime, departingTime) {
       bill: Math.floor(hours * 200),
     },
   });
+  return payment.bill;
 }
 
 async function checkPaymentStatus(vehicle_id) {
@@ -106,13 +107,13 @@ export async function updateExitingVehicle(number_plate) {
       },
     });
     console.log(vehicle);
-    await makeBill(
-      vehicle.payment_id,
-      vehicle.arrival_time,
-      vehicle.departing_time
-    );
+
     return {
-      message: "Vehicle updated",
+      message: `Your bill is ${await makeBill(
+        vehicle.payment_id,
+        vehicle.arrival_time,
+        vehicle.departing_time
+      )}`,
     };
   } else {
     return {

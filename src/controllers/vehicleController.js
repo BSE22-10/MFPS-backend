@@ -4,8 +4,10 @@ import {
   createVehicle,
   deleteVehicle,
   updateExitingVehicle,
+  checkPaymentStatus,
+  makePayment,
 } from "../services/index.js";
-import { body, validationResult } from "express-validator";
+import { body, query, validationResult } from "express-validator";
 
 const router = express.Router();
 const validator = {};
@@ -48,7 +50,6 @@ router.put("/update", body("number_plate").isString(), async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    console.log(req.body.number_plate);
     res.json(await updateExitingVehicle(req.body.number_plate));
     // res.status(201).json({
     //   message: "Vehicle updated",
@@ -58,6 +59,40 @@ router.put("/update", body("number_plate").isString(), async (req, res) => {
     res.status(400).json({ error: error.message || error });
   }
 });
+
+router.get(
+  "/checkPayment",
+  query("number_plate", "Invalid number").isString(),
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      res.json(await checkPaymentStatus(req.query.number_plate));
+    } catch (error) {
+      console.log(error);
+      res.status(400).json({ error: error.message || error });
+    }
+  }
+);
+
+router.post(
+  "/makePayment",
+  body("number_plate", "Invalid number").isString(),
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      var number_plate = req.body.number_plate;
+      res.status(201).json(await makePayment(number_plate));
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
 
 export default router;
 // module.exports = router;

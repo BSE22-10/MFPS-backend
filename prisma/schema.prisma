@@ -25,10 +25,11 @@ model ParkingSlot {
 }
 
 model Payment {
-  id      Int       @id @default(autoincrement())
-  bill    Int?
-  status  Boolean   @default(false)
-  Vehicle Vehicle[]
+  id        Int       @id @default(autoincrement())
+  bill      Int?
+  status    Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  Vehicle   Vehicle[]
 
 }
 

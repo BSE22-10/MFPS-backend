@@ -7,6 +7,7 @@ import {
   numberOfCarsOnEachFloor,
   timelyData,
   getWeeklyData,
+  getMonthlyData,
 } from "../services/index.js";
 import { body, query, validationResult } from "express-validator";
 
@@ -103,6 +104,8 @@ router.get("/timelyData", query("duration").isString(), async (req, res) => {
       res.json(await timelyData());
     } else if (filter === "weekly") {
       res.json(await getWeeklyData());
+    } else if (filter === "monthly") {
+      res.json(await getMonthlyData());
     }
   } catch (e) {
     console.log(e);

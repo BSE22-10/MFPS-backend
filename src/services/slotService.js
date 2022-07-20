@@ -18,6 +18,24 @@ const roundDown = (minute) => {
   return minute.startOf("hour").format("h:mm a");
 };
 
+const filterData = async (data, uniqueElement) => {
+  var existingIds = [];
+  const uniqueObjectsArray = [];
+  data.map((info) => {
+    if (existingIds.includes(info[`${uniqueElement}`])) {
+      data.find((item, index) => {
+        if (item[`${uniqueElement}`] === info[`${uniqueElement}`]) {
+          data[index].count += 1;
+        }
+      });
+    } else {
+      uniqueObjectsArray.push(info);
+      existingIds.push(info[`${uniqueElement}`]);
+    }
+  });
+  return uniqueObjectsArray;
+};
+
 const checkIfFloorIsFull = async (floor_id) => {
   const slots = await prisma.parkingSlot.findMany({
     where: {
@@ -249,4 +267,35 @@ export const timelyData = async () => {
   } catch (error) {
     console.log(error);
   }
+};
+
+export const getWeeklyData = async () => {
+  var data = [];
+  var existingIds = [];
+  const uniqueObjectsArray = [];
+  var m = moment("2022-07-19T07:55:20.802Z");
+
+  //   console.log(m.day());
+  const slots = await prisma.slotStatus.findMany({
+    where: {
+      status: true,
+    },
+    select: {
+      createdAt: true,
+      slot: {
+        select: {
+          floor_id: true,
+        },
+      },
+    },
+  });
+
+  slots.map((slot) => {
+    data.push({
+      time: moment(slot.createdAt).format("dddd"),
+      count: 1,
+    });
+  });
+
+  return filterData(data, "time");
 };

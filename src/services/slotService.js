@@ -1,6 +1,22 @@
 import { PrismaClient } from "@prisma/client";
+import moment from "moment";
 
 const prisma = new PrismaClient();
+
+const roundUp = (time) => {
+  time = moment(time);
+  var newTime =
+    time.minute() || time.second() || time.millisecond()
+      ? time.add(1, "hour").startOf("hour")
+      : time.startOf("hour");
+  //   console.log(newTime);
+  return newTime.format("h:mm a");
+};
+
+const roundDown = (minute) => {
+  minute = moment(minute);
+  return minute.startOf("hour").format("h:mm a");
+};
 
 const checkIfFloorIsFull = async (floor_id) => {
   const slots = await prisma.parkingSlot.findMany({
@@ -178,4 +194,59 @@ export const numberOfCarsOnEachFloor = async () => {
     console.log(uniqueObjectsArray);
     return uniqueObjectsArray;
   } catch (error) {}
+};
+
+export const timelyData = async () => {
+  try {
+    var data = [];
+    var existingIds = [];
+    const uniqueObjectsArray = [];
+    var m = moment("2022-07-19T07:55:20.802Z");
+
+    console.log(m.minute());
+    const slots = await prisma.slotStatus.findMany({
+      where: {
+        status: true,
+      },
+      select: {
+        createdAt: true,
+        slot: {
+          select: {
+            floor_id: true,
+          },
+        },
+      },
+    });
+    var times = [];
+    for (var i = 0; i < 24; i++) {
+      times.push(moment(i + ":" + "00", "h:mm a").format("h:mm a"));
+    }
+    slots.map((slot) => {
+      data.push({
+        time:
+          slot.createdAt.getMinutes() > 30
+            ? roundUp(slot.createdAt)
+            : roundDown(slot.createdAt),
+        count: 1,
+      });
+    });
+    console.log(data);
+    data.map((info) => {
+      if (existingIds.includes(info.time)) {
+        console.log(uniqueObjectsArray.indexOf(info.floor_id));
+        data.find((item, index) => {
+          if (item.time === info.time) {
+            data[index].count += 1;
+          }
+        });
+      } else {
+        uniqueObjectsArray.push(info);
+        existingIds.push(info.time);
+      }
+    });
+    console.log(uniqueObjectsArray);
+    return uniqueObjectsArray;
+  } catch (error) {
+    console.log(error);
+  }
 };

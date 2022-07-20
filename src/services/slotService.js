@@ -299,3 +299,31 @@ export const getWeeklyData = async () => {
 
   return filterData(data, "time");
 };
+export const getMonthlyData = async () => {
+  var data = [];
+  var m = moment("2022-07-19T07:55:20.802Z");
+
+  //   console.log(m.day());
+  const slots = await prisma.slotStatus.findMany({
+    where: {
+      status: true,
+    },
+    select: {
+      createdAt: true,
+      slot: {
+        select: {
+          floor_id: true,
+        },
+      },
+    },
+  });
+
+  slots.map((slot) => {
+    data.push({
+      time: moment(slot.createdAt).format("MMMM"),
+      count: 1,
+    });
+  });
+  //   console.log(data);
+  return filterData(data, "time");
+};

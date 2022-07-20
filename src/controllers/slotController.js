@@ -5,6 +5,7 @@ import {
   deleteSlot,
   updateSlotStatus,
   numberOfCarsOnEachFloor,
+  timelyData,
 } from "../services/index.js";
 import { body, query, validationResult } from "express-validator";
 
@@ -84,6 +85,15 @@ router.put(
 router.get("/parkingSlots", async (req, res) => {
   try {
     res.json(await numberOfCarsOnEachFloor());
+  } catch (e) {
+    console.log(e);
+    res.json({ error: e.message || err });
+  }
+});
+
+router.get("/timelyData", async (req, res) => {
+  try {
+    res.json(await timelyData());
   } catch (e) {
     console.log(e);
     res.json({ error: e.message || err });

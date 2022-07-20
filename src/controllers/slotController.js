@@ -6,6 +6,7 @@ import {
   updateSlotStatus,
   numberOfCarsOnEachFloor,
   timelyData,
+  getWeeklyData,
 } from "../services/index.js";
 import { body, query, validationResult } from "express-validator";
 
@@ -91,9 +92,18 @@ router.get("/parkingSlots", async (req, res) => {
   }
 });
 
-router.get("/timelyData", async (req, res) => {
+router.get("/timelyData", query("duration").isString(), async (req, res) => {
   try {
-    res.json(await timelyData());
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    var filter = req.query.duration;
+    if (filter === "daily") {
+      res.json(await timelyData());
+    } else if (filter === "weekly") {
+      res.json(await getWeeklyData());
+    }
   } catch (e) {
     console.log(e);
     res.json({ error: e.message || err });

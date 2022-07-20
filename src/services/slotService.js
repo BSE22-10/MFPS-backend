@@ -45,12 +45,12 @@ const checkIfFloorExists = async (floor_id) => {
 };
 
 const checkIfSlotExists = async (id) => {
-  const floor = await prisma.floor.findFirst({
+  const slot = await prisma.parkingSlot.findFirst({
     where: {
       id: id,
     },
   });
-  if (floor) {
+  if (slot) {
     return true;
   } else {
     throw new Error("Slot does not exist");
@@ -124,4 +124,58 @@ export const deleteSlot = async (id) => {
   } catch (error) {
     console.log(error);
   }
+};
+
+export const numberOfCarsOnEachFloor = async () => {
+  try {
+    var data = [];
+    const uniqueObjectsArray = [];
+    const uniqueGuys = new Set();
+    var existingIds = [];
+    const slots = await prisma.slotStatus.findMany({
+      where: {
+        status: true,
+      },
+      select: {
+        createdAt: true,
+        slot: {
+          select: {
+            floor_id: true,
+          },
+        },
+      },
+    });
+    console.log(slots);
+
+    slots.map((slot) => {
+      data.push({
+        floor_id: slot.slot.floor_id,
+        count: 1,
+      });
+    });
+    // for (const object of data) {
+    //   const objectJSON = JSON.stringify(object);
+    //   console.log(uniqueGuys.has(object.id));
+    //   if (!uniqueObjectsArray.has(object.id)) {
+    //     uniqueObjectsArray.push(object);
+    //   }
+    //   uniqueGuys.add(objectJSON);
+    // }
+    data.map((info) => {
+      if (existingIds.includes(info.floor_id)) {
+        // console.log(existingIds.indexOf(info.id));
+        console.log(uniqueObjectsArray.indexOf(info.floor_id));
+        data.find((item, index) => {
+          if (item.floor_id === info.floor_id) {
+            data[index].count += 1;
+          }
+        });
+      } else {
+        uniqueObjectsArray.push(info);
+        existingIds.push(info.floor_id);
+      }
+    });
+    console.log(uniqueObjectsArray);
+    return uniqueObjectsArray;
+  } catch (error) {}
 };

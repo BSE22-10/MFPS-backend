@@ -64,7 +64,7 @@ async function getVehicle(number_plate) {
       arrival_time: "asc",
     },
   });
-  console.log(vehicles);
+  //   console.log(vehicles);
   return vehicles[0];
 }
 
@@ -95,11 +95,11 @@ export async function createVehicle(data) {
 export async function updateExitingVehicle(number_plate) {
   //   console.log(data);
   number_plate = String(number_plate);
-  console.log(number_plate);
+  console.log((await getVehicle(number_plate)).id);
   if (await checkIfVehicleExists(number_plate)) {
     const vehicle = await prisma.vehicle.update({
       where: {
-        id: await getVehicle(number_plate).id,
+        id: (await getVehicle(number_plate)).id,
       },
       data: {
         departing_time: new Date(),
@@ -138,7 +138,7 @@ export async function checkPaymentStatus(number_plate) {
         number_plate: number_plate,
       },
       orderBy: {
-        arrival_time: "asc",
+        arrival_time: "desc",
       },
     });
     const payment = await prisma.payment.findFirst({

@@ -7,18 +7,21 @@ const filterData = async (data, uniqueElement) => {
   var existingIds = [];
   const uniqueObjectsArray = [];
   data.map((info) => {
+    var check = 0;
     if (existingIds.includes(info[`${uniqueElement}`])) {
       data.find((item, index) => {
         if (item[`${uniqueElement}`] === info[`${uniqueElement}`]) {
-          console.log("here");
-          data[index].count += item.count;
+          data[index].count += info.count;
+          console.log(info.count);
         }
       });
+      check++;
     } else {
       uniqueObjectsArray.push(info);
       existingIds.push(info[`${uniqueElement}`]);
     }
   });
+
   return uniqueObjectsArray;
 };
 
@@ -36,6 +39,6 @@ export const getTransactionDetails = async () => {
       count: transaction.bill,
     });
   });
-  console.log(data);
+  // console.log(data);
   return filterData(data, "date");
 };

@@ -10,13 +10,26 @@ const roundUp = (time) => {
       ? time.add(1, "hour").startOf("hour")
       : time.startOf("hour");
   //   console.log(newTime);
-  return newTime.format("h:mm a");
+  return newTime.format("HH:mm a");
 };
 
 const roundDown = (minute) => {
   minute = moment(minute);
-  return minute.startOf("hour").format("h:mm a");
+  return minute.startOf("hour").format("HH:mm a");
 };
+
+function compare(a, b) {
+  // Use toUpperCase() to ignore character casing
+  const bandA = a.time;
+  const bandB = b.time;
+  let comparison = 0;
+  if (bandA > bandB) {
+    comparison = 1;
+  } else if (bandA < bandB) {
+    comparison = -1;
+  }
+  return comparison;
+}
 
 const filterData = async (data, uniqueElement) => {
   var existingIds = [];
@@ -49,7 +62,7 @@ const checkIfFloorIsFull = async (floor_id) => {
     },
   });
   var num = floor === null ? 0 : floor.no_of_slots;
-  console.log(slots);
+  //   console.log(slots);
   if (num === 0 || slots.length === 0) {
     return false;
   } else if (num === slots.length) {
@@ -62,7 +75,6 @@ const checkIfFloorIsFull = async (floor_id) => {
 
 const checkIfFloorExists = async (floor_id) => {
   try {
-    console.log("fLOOR");
     const floor = await prisma.floor.findFirst({
       where: {
         id: floor_id,
@@ -187,6 +199,8 @@ export const numberOfCarsOnEachFloor = async () => {
         count: 1,
       });
     });
+    const parkedCars = slots.length;
+    console.log(parkedCars / 1);
     // for (const object of data) {
     //   const objectJSON = JSON.stringify(object);
     //   console.log(uniqueGuys.has(object.id));
@@ -219,9 +233,6 @@ export const timelyData = async () => {
     var data = [];
     var existingIds = [];
     const uniqueObjectsArray = [];
-    var m = moment("2022-07-19T07:55:20.802Z");
-
-    console.log(m.minute());
     const slots = await prisma.slotStatus.findMany({
       where: {
         status: true,
@@ -243,8 +254,8 @@ export const timelyData = async () => {
       data.push({
         time:
           slot.createdAt.getMinutes() > 30
-            ? roundUp(slot.createdAt)
-            : roundDown(slot.createdAt),
+            ? roundUp(slot.createdAt).toString()
+            : roundDown(slot.createdAt).toString(),
         count: 1,
       });
     });
@@ -262,7 +273,13 @@ export const timelyData = async () => {
         existingIds.push(info.time);
       }
     });
-    console.log(uniqueObjectsArray);
+    console.log(uniqueObjectsArray[2].time < uniqueObjectsArray[3].time);
+    // console.log(uniqueObjectsArray.sort(compare));
+    const dates = uniqueObjectsArray.sort(
+      (objA, objB) => objA.time < objB.time
+    );
+    // console.log(dates);
+    new Date(uniqueObjectsArray.sort(compare));
     return uniqueObjectsArray;
   } catch (error) {
     console.log(error);
@@ -288,8 +305,11 @@ export const getWeeklyData = async () => {
         },
       },
     },
+    orderBy: {
+      createdAt: "asc",
+    },
   });
-
+  console.log(slots);
   slots.map((slot) => {
     data.push({
       time: moment(slot.createdAt).format("dddd"),

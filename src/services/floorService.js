@@ -59,3 +59,26 @@ export const deleteFloor = async (id) => {
     console.log(error);
   }
 };
+
+export const getSlotsForASpecificFloor = async (id) => {
+  try {
+    const slots = await prisma.parkingSlot.findMany({
+      where: {
+        floor_id: id,
+      },
+      include: {
+        SlotStatus: {
+          orderBy: {
+            createdAt: "desc",
+          },
+          select: {
+            status: true,
+          },
+          take: 1,
+        },
+      },
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};

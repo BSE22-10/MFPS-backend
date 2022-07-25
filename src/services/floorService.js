@@ -78,6 +78,7 @@ export const getSlotsForASpecificFloor = async (id) => {
         },
       },
     });
+    return slots;
   } catch (error) {
     console.log(error);
   }

@@ -61,7 +61,7 @@ async function getVehicle(number_plate) {
       number_plate: number_plate,
     },
     orderBy: {
-      arrival_time: "asc",
+      arrival_time: "desc",
     },
   });
   //   console.log(vehicles);

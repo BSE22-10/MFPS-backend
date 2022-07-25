@@ -11,10 +11,7 @@ const checkIfFloorExists = async (id) => {
   if (floor) {
     return true;
   } else {
-    throw new Error({
-      status: 400,
-      message: "Floor does not exists",
-    });
+    throw new Error("Floor does not exist");
   }
 };
 
@@ -58,6 +55,30 @@ export const deleteFloor = async (id) => {
         id: id,
       },
     });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getSlotsForASpecificFloor = async (id) => {
+  try {
+    const slots = await prisma.parkingSlot.findMany({
+      where: {
+        floor_id: id,
+      },
+      include: {
+        SlotStatus: {
+          orderBy: {
+            createdAt: "desc",
+          },
+          select: {
+            status: true,
+          },
+          take: 1,
+        },
+      },
+    });
+    return slots;
   } catch (error) {
     console.log(error);
   }

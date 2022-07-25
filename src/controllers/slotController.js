@@ -4,6 +4,10 @@ import {
   createSlot,
   deleteSlot,
   updateSlotStatus,
+  numberOfCarsOnEachFloor,
+  timelyData,
+  getWeeklyData,
+  getMonthlyData,
 } from "../services/index.js";
 import { body, query, validationResult } from "express-validator";
 
@@ -66,7 +70,9 @@ router.put(
         return res.status(400).json({ errors: errors.array() });
       }
       const id = Number(req.query.id);
-      const status = req.query.status === true;
+      console.log(typeof req.query.status);
+      const status = req.query.status === "true";
+      console.log(status);
       res.json(await updateSlotStatus(id, status));
       // res.status(201).json({
       //   message: "Vehicle updated",
@@ -77,5 +83,34 @@ router.put(
     }
   }
 );
+
+router.get("/parkingSlots", async (req, res) => {
+  try {
+    res.json(await numberOfCarsOnEachFloor());
+  } catch (e) {
+    console.log(e);
+    res.json({ error: e.message || err });
+  }
+});
+
+router.get("/timelyData", query("duration").isString(), async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    var filter = req.query.duration;
+    if (filter === "daily") {
+      res.json(await timelyData());
+    } else if (filter === "weekly") {
+      res.json(await getWeeklyData());
+    } else if (filter === "monthly") {
+      res.json(await getMonthlyData());
+    }
+  } catch (e) {
+    console.log(e);
+    res.json({ error: e.message || err });
+  }
+});
 
 export default router;

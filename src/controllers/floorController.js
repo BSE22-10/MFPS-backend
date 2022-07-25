@@ -4,6 +4,7 @@ import {
   createFloor,
   deleteFloor,
   updateFloor,
+  getSlotsForASpecificFloor,
 } from "../services/index.js";
 import { body, query, validationResult } from "express-validator";
 
@@ -65,6 +66,23 @@ router.put(
     } catch (error) {
       console.log(error);
       res.status(400).json({ error: error.message || error });
+    }
+  }
+);
+
+router.get(
+  "/singleFloor",
+  query("floor_id", "Provide a valid number").isNumeric(),
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      const floor_id = Number(req.query.floor_id);
+      res.json(await getSlotsForASpecificFloor(floor_id));
+    } catch (error) {
+      console.log(error);
     }
   }
 );

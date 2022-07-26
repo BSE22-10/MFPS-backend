@@ -262,7 +262,6 @@ export const timelyData = async () => {
     console.log(data);
     data.map((info) => {
       if (existingIds.includes(info.time)) {
-        console.log(uniqueObjectsArray.indexOf(info.floor_id));
         data.find((item, index) => {
           if (item.time === info.time) {
             data[index].count += 1;
@@ -273,7 +272,7 @@ export const timelyData = async () => {
         existingIds.push(info.time);
       }
     });
-    console.log(uniqueObjectsArray[2].time < uniqueObjectsArray[3].time);
+    // console.log(uniqueObjectsArray[2].time < uniqueObjectsArray[3].time);
     // console.log(uniqueObjectsArray.sort(compare));
     const dates = uniqueObjectsArray.sort(
       (objA, objB) => objA.time < objB.time

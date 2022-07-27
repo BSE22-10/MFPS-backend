@@ -74,6 +74,24 @@ const checkIfFloorIsFull = async (floor_id) => {
   }
 };
 
+const checkIfSlotsAreValid = async (floor_id, number_of_slots) => {
+  try {
+    const floor = await prisma.floor.findFirst({
+      where: {
+        id: floor_id,
+      },
+    });
+
+    if (number_of_slots > floor.no_of_slots) {
+      throw new Error(`Floor has ${floor.no_of_slots} slots`);
+    } else {
+      return true;
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+
 const checkIfFloorExists = async (floor_id) => {
   try {
     const floor = await prisma.floor.findFirst({
@@ -128,6 +146,29 @@ export const createSlot = async (floor_id) => {
       throw new Error("Floor is full");
     }
     return { message: "Parking slot created" };
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const createMultipleSlots = async (floor_id, number_of_slots) => {
+  try {
+    if (
+      (await checkIfFloorIsFull(floor_id)) === false &&
+      (await checkIfSlotsAreValid(floor_id, number_of_slots))
+    ) {
+      for (var i = 0; i < number_of_slots; i++) {
+        await prisma.parkingSlot.create({
+          data: {
+            floor: {
+              connect: {
+                id: floor_id,
+              },
+            },
+          },
+        });
+      }
+    }
   } catch (error) {
     throw error;
   }

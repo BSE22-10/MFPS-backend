@@ -62,8 +62,9 @@ const checkIfFloorIsFull = async (floor_id) => {
     },
   });
   var num = floor === null ? 0 : floor.no_of_slots;
-  //   console.log(slots);
+  console.log(slots);
   if (num === 0 || slots.length === 0) {
+    console.log("Floor is full");
     return false;
   } else if (num === slots.length) {
     return true;
@@ -123,6 +124,8 @@ export const createSlot = async (floor_id) => {
           },
         },
       });
+    } else {
+      throw new Error("Floor is full");
     }
     return { message: "Parking slot created" };
   } catch (error) {

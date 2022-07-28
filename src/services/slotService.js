@@ -49,7 +49,7 @@ const filterData = async (data, uniqueElement) => {
   return uniqueObjectsArray;
 };
 
-const checkIfFloorIsFull = async (floor_id) => {
+export const checkIfFloorIsFull = async (floor_id) => {
   const slots = await prisma.parkingSlot.findMany({
     where: {
       floor_id: floor_id,
@@ -74,7 +74,7 @@ const checkIfFloorIsFull = async (floor_id) => {
   }
 };
 
-const checkIfSlotsAreValid = async (floor_id, number_of_slots) => {
+export const checkIfSlotsAreValid = async (floor_id, number_of_slots) => {
   try {
     const floor = await prisma.floor.findFirst({
       where: {

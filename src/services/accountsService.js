@@ -1,6 +1,17 @@
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
+const checkNumberPlate = async (plate) => {
+  const numberPlate = await prisma.accounts.findFirst({
+    where: {
+      number_plate: plate,
+    },
+  });
+  if (!numberPlate) {
+    throw new Error("Number plate does not exist");
+  }
+};
+
 export const createAccount = async (accountInfo) => {
   const { email, number_plate, amount } = accountInfo;
   try {
@@ -36,8 +47,10 @@ export const checkPlate = async (number_plate) => {
   }
 };
 
-export const updateAccountPayment = async (email, amount) => {
+export const updateAccountPayment = async (data) => {
+  const { number_plate, amount } = data;
   try {
+    await checkNumberPlate(number_plate);
     const currentAmount = prisma.accounts.findFirst({
       where: { email: email },
     });
@@ -46,7 +59,7 @@ export const updateAccountPayment = async (email, amount) => {
         amountPaid: currentAmount.amountPaid + amount,
       },
       where: {
-        email: email,
+        number_plate: number_plate,
       },
     });
     return {

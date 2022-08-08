@@ -8,6 +8,7 @@ import {
   timelyData,
   getWeeklyData,
   getMonthlyData,
+  createMultipleSlots,
 } from "../services/index.js";
 import { body, query, validationResult } from "express-validator";
 
@@ -36,6 +37,28 @@ router.post(
         return res.status(400).json({ errors: errors.array() });
       }
       res.json(await createSlot(Number(req.query.id)));
+    } catch (error) {
+      res.status(400).json({ error: error.message || error });
+    }
+  }
+);
+
+router.post(
+  "/mutlipleSlots",
+  query("id", "Invalid id").isNumeric(),
+  body("no_of_slots", "Invalid number").isNumeric(),
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      res.json(
+        await createMultipleSlots(
+          Number(req.query.id),
+          Number(req.body.number_of_slots)
+        )
+      );
     } catch (error) {
       res.status(400).json({ error: error.message || error });
     }

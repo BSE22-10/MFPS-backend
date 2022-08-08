@@ -49,7 +49,7 @@ const filterData = async (data, uniqueElement) => {
   return uniqueObjectsArray;
 };
 
-const checkIfFloorIsFull = async (floor_id) => {
+export const checkIfFloorIsFull = async (floor_id) => {
   const slots = await prisma.parkingSlot.findMany({
     where: {
       floor_id: floor_id,
@@ -62,14 +62,33 @@ const checkIfFloorIsFull = async (floor_id) => {
     },
   });
   var num = floor === null ? 0 : floor.no_of_slots;
-  //   console.log(slots);
+  console.log(slots);
   if (num === 0 || slots.length === 0) {
+    console.log("Floor is full");
     return false;
   } else if (num === slots.length) {
     return true;
   } else {
     console.log("Not full yet");
     return false;
+  }
+};
+
+export const checkIfSlotsAreValid = async (floor_id, number_of_slots) => {
+  try {
+    const floor = await prisma.floor.findFirst({
+      where: {
+        id: floor_id,
+      },
+    });
+
+    if (number_of_slots > floor.no_of_slots) {
+      throw new Error(`Floor has ${floor.no_of_slots} slots`);
+    } else {
+      return true;
+    }
+  } catch (error) {
+    throw error;
   }
 };
 
@@ -123,8 +142,33 @@ export const createSlot = async (floor_id) => {
           },
         },
       });
+    } else {
+      throw new Error("Floor is full");
     }
     return { message: "Parking slot created" };
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const createMultipleSlots = async (floor_id, number_of_slots) => {
+  try {
+    if (
+      (await checkIfFloorIsFull(floor_id)) === false &&
+      (await checkIfSlotsAreValid(floor_id, number_of_slots))
+    ) {
+      for (var i = 0; i < number_of_slots; i++) {
+        await prisma.parkingSlot.create({
+          data: {
+            floor: {
+              connect: {
+                id: floor_id,
+              },
+            },
+          },
+        });
+      }
+    }
   } catch (error) {
     throw error;
   }
@@ -262,7 +306,6 @@ export const timelyData = async () => {
     console.log(data);
     data.map((info) => {
       if (existingIds.includes(info.time)) {
-        console.log(uniqueObjectsArray.indexOf(info.floor_id));
         data.find((item, index) => {
           if (item.time === info.time) {
             data[index].count += 1;
@@ -273,7 +316,7 @@ export const timelyData = async () => {
         existingIds.push(info.time);
       }
     });
-    console.log(uniqueObjectsArray[2].time < uniqueObjectsArray[3].time);
+    // console.log(uniqueObjectsArray[2].time < uniqueObjectsArray[3].time);
     // console.log(uniqueObjectsArray.sort(compare));
     const dates = uniqueObjectsArray.sort(
       (objA, objB) => objA.time < objB.time

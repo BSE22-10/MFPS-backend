@@ -1,5 +1,4 @@
 import { PrismaClient } from "@prisma/client";
-
 const prisma = new PrismaClient();
 
 const checkIfFloorExists = async (id) => {
@@ -81,5 +80,32 @@ export const getSlotsForASpecificFloor = async (id) => {
     return slots;
   } catch (error) {
     console.log(error);
+  }
+};
+
+export const createFloorWithManySlots = async (number_of_slots) => {
+  try {
+    const floor = await prisma.floor.create({
+      data: {
+        no_of_slots: number_of_slots,
+      },
+    });
+    for (var i = 0; i < number_of_slots; i++) {
+      await prisma.parkingSlot.create({
+        data: {
+          floor: {
+            connect: {
+              id: floor.id,
+            },
+          },
+        },
+      });
+    }
+    return {
+      message: "Floor created",
+    };
+  } catch (error) {
+    console.log(error);
+    throw error;
   }
 };

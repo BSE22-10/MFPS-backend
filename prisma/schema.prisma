@@ -30,7 +30,6 @@ model Payment {
   status    Boolean   @default(false)
   createdAt DateTime  @default(now())
   Vehicle   Vehicle[]
-
 }
 
 model Vehicle {
@@ -41,6 +40,27 @@ model Vehicle {
 
   payment    Payment? @relation(fields: [payment_id], references: [id], onDelete: Cascade)
   payment_id Int?
+
+  contact_id Int?
+  contact    PhoneNumber? @relation(fields: [contact_id], references: [id], onDelete: Cascade)
+
+  account_id String?
+  account    Accounts? @relation(fields: [account_id], references: [number_plate], onDelete: Cascade)
+}
+
+model Accounts {
+  id           Int       @id @default(autoincrement())
+  number_plate String    @unique()
+  email        String
+  amountPaid   Int
+  Vehicle      Vehicle[]
+}
+
+model PhoneNumber {
+  id          Int    @id @default(autoincrement())
+  phoneNumber String
+
+  Vehicle Vehicle[]
 }
 
 model SlotStatus {

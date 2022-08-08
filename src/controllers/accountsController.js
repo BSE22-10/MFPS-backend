@@ -1,6 +1,10 @@
 import express from "express";
 import { body, query, validationResult } from "express-validator";
-import { createAccount } from "../services/index.js";
+import {
+  checkPlate,
+  createAccount,
+  updateAccountPayment,
+} from "../services/index.js";
 
 const router = express.Router();
 
@@ -15,10 +19,37 @@ router.post(
       if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
       }
-      return await createAccount(req.body);
-      //   res.status(201).json({
-      //     message: "Floor created",
-      //   });
+      return res.json(await createAccount(req.body));
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
+router.post("/checkPlate", async (req, res) => {
+  try {
+    console.log(req.body);
+    //   const errors = validationResult(req);
+    //   if (!errors.isEmpty()) {
+    //     return res.status(400).json({ errors: errors.array() });
+    //   }
+    return res.json(await checkPlate(req.body.number_plate));
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+router.put(
+  "/updatePayment",
+  body("email", "Provide a valid email").isEmail(),
+  body("amount", "Please provide a valid amount").isNumeric(),
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      return res.json(await updateAccountPayment(req.body));
     } catch (error) {
       console.log(error);
     }

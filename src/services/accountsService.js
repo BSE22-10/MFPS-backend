@@ -19,3 +19,40 @@ export const createAccount = async (accountInfo) => {
     throw error;
   }
 };
+
+export const checkPlate = async (number_plate) => {
+  try {
+    const plate = prisma.accounts.findFirst({
+      where: {
+        number_plate: number_plate,
+      },
+    });
+
+    if (!plate) {
+      throw new Error("Plate does not exist");
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updateAccountPayment = async (email, amount) => {
+  try {
+    const currentAmount = prisma.accounts.findFirst({
+      where: { email: email },
+    });
+    await prisma.accounts.update({
+      data: {
+        amountPaid: currentAmount.amountPaid + amount,
+      },
+      where: {
+        email: email,
+      },
+    });
+    return {
+      message: "Account updated successfully",
+    };
+  } catch (error) {
+    throw error;
+  }
+};

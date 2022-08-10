@@ -93,7 +93,6 @@ router.put(
         return res.status(400).json({ errors: errors.array() });
       }
       const id = Number(req.query.id);
-      console.log(typeof req.query.status);
       const status = req.query.status === "true";
       console.log(status);
       res.json(await updateSlotStatus(id, status));

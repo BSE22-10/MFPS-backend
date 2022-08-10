@@ -33,7 +33,7 @@ export const createAccount = async (accountInfo) => {
 
 export const checkPlate = async (number_plate) => {
   try {
-    const plate = prisma.accounts.findFirst({
+    const plate = await prisma.accounts.findFirst({
       where: {
         number_plate: number_plate,
       },

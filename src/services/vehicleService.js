@@ -212,7 +212,6 @@ export async function checkIfVehicleCreated() {
     const diff = Math.round(
       (((time - times[0].arrival_time) % 86400000) % 3600000) / 60000
     );
-    console.log(diff);
     const compare = moment(time, "DD/MM/YYYY HH:mm:ss").diff(
       moment(times[0].arrival_time, "DD/MM/YYYY HH:mm:ss")
     );
@@ -225,6 +224,25 @@ export async function checkIfVehicleCreated() {
       };
     } else {
       throw new Error("Vehicle not created");
+    }
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function getEmail(number_plate) {
+  try {
+    const driver = await prisma.accounts.findFirst({
+      where: {
+        number_plate: number_plate,
+      },
+    });
+    if (driver) {
+      return {
+        email: driver.email,
+      };
+    } else {
+      throw new Error("Number plate does not exist");
     }
   } catch (error) {
     throw error;

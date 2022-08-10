@@ -51,7 +51,6 @@ router.put(
         return res.status(400).json({ errors: errors.array() });
       }
       const id = req.query.id;
-      console.log(id);
       if (id === undefined) {
         return res.status(400).json({ error: "Please provide an id" });
       } else {

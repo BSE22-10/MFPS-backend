@@ -303,7 +303,6 @@ export const timelyData = async () => {
         count: 1,
       });
     });
-    console.log(data);
     data.map((info) => {
       if (existingIds.includes(info.time)) {
         data.find((item, index) => {

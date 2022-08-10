@@ -12,7 +12,6 @@ const filterData = async (data, uniqueElement) => {
       data.find((item, index) => {
         if (item[`${uniqueElement}`] === info[`${uniqueElement}`]) {
           data[index].count += info.count;
-          console.log(info.count);
         }
       });
       check++;
@@ -21,7 +20,12 @@ const filterData = async (data, uniqueElement) => {
       existingIds.push(info[`${uniqueElement}`]);
     }
   });
-
+  // Object.keys(uniqueObjectsArray).forEach((key) => {
+  //   {
+  //     obj[key] === "count" && obj[key].toLocaleString("en-US");
+  //   }
+  // });
+  console.log(uniqueObjectsArray);
   return uniqueObjectsArray;
 };
 
@@ -37,8 +41,11 @@ export const getTransactionDetails = async () => {
     data.push({
       date: moment(transaction.createdAt).format("DD/MM/YY"),
       count: transaction.bill,
+      // .toLocaleString("en-US"),
+      // transaction.bill,
     });
   });
+  // console.log(data);
   // console.log(data);
   return filterData(data, "date");
 };

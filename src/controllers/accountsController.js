@@ -3,6 +3,7 @@ import { body, query, validationResult } from "express-validator";
 import {
   checkPlate,
   createAccount,
+  getEmail,
   updateAccountPayment,
 } from "../services/index.js";
 
@@ -26,7 +27,7 @@ router.post(
   }
 );
 
-router.post("/checkPlate", async (req, res) => {
+router.get("/checkPlate", async (req, res) => {
   try {
     console.log(req.body);
     //   const errors = validationResult(req);
@@ -41,7 +42,7 @@ router.post("/checkPlate", async (req, res) => {
 
 router.put(
   "/updatePayment",
-  body("email", "Provide a valid email").isEmail(),
+  body("number_plate", "Provide a valid plate").isString(),
   body("amount", "Please provide a valid amount").isNumeric(),
   async (req, res) => {
     try {
@@ -52,6 +53,24 @@ router.put(
       return res.json(await updateAccountPayment(req.body));
     } catch (error) {
       console.log(error);
+      res.json({ error: error.message || error });
+    }
+  }
+);
+
+router.post(
+  "/getEmail",
+  //   body("number_plate", "Provide a valid plate").isString(),
+  async (req, res) => {
+    try {
+      //   const errors = validationResult(req);
+      //   if (!errors.isEmpty()) {
+      //     return res.status(400).json({ errors: errors.array() });
+      //   }
+      return res.json(await getEmail(req.body.number_plate));
+    } catch (error) {
+      console.log(error);
+      res.json({ error: error.message || error });
     }
   }
 );

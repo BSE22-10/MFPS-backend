@@ -1,19 +1,31 @@
 import { PrismaClient } from "@prisma/client";
+import moment from "moment";
 
 const prisma = new PrismaClient();
 
 var payment = true;
 
+const getCurrentAmount = async (number_plate) => {
+  const amount = await prisma.accounts.findFirst({
+    where: {
+      number_plate: number_plate,
+    },
+  });
+  return amount.amountPaid;
+};
+
 //Gets the bill basing on the time spent in the parking
 async function makeBill(payment_id, arrivalTime, departingTime) {
   var hours = Math.abs(departingTime - arrivalTime) / 36e5;
-  console.log(hours);
+  var minutes = (Math.abs(departingTime - arrivalTime) / (1000 * 60)) % 60;
+  console.log(minutes);
+
   const payment = await prisma.payment.update({
     where: {
       id: payment_id,
     },
     data: {
-      bill: Math.floor(hours * 200),
+      bill: Math.floor(hours * 10),
     },
   });
   return payment.bill;
@@ -78,6 +90,11 @@ export async function createVehicle(data) {
   const vehicle = await prisma.vehicle.create({
     data: {
       number_plate: data.number_plate,
+      account: {
+        connect: {
+          number_plate: data.number_plate,
+        },
+      },
     },
   });
 
@@ -105,6 +122,24 @@ export async function updateExitingVehicle(number_plate) {
         departing_time: new Date(),
       },
     });
+
+    await prisma.accounts.update({
+      where: {
+        number_plate: number_plate,
+      },
+      data: {
+        amountPaid:
+          (await getCurrentAmount(number_plate)) -
+          (await makeBill(
+            vehicle.payment_id,
+            vehicle.arrival_time,
+            vehicle.departing_time
+          )),
+      },
+    });
+
+    await updatePayment(number_plate);
+
     return {
       message: `Your bill is ${await makeBill(
         vehicle.payment_id,
@@ -153,6 +188,43 @@ export async function checkPaymentStatus(number_plate) {
       };
     } else {
       throw new Error("No payment made");
+    }
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function checkIfVehicleCreated() {
+  try {
+    var time = new Date();
+    console.log(time.getMinutes());
+    // const vehicle = await prisma.vehicle.findFirst({
+    //   where: {
+    //     arrival_time: { gte: time.getMinutes() - 4 },
+    //   },
+    // });
+    // console.log(vehicle);
+    const times = await prisma.vehicle.findMany({
+      orderBy: {
+        arrival_time: "desc",
+      },
+    });
+    const diff = Math.round(
+      (((time - times[0].arrival_time) % 86400000) % 3600000) / 60000
+    );
+    console.log(diff);
+    const compare = moment(time, "DD/MM/YYYY HH:mm:ss").diff(
+      moment(times[0].arrival_time, "DD/MM/YYYY HH:mm:ss")
+    );
+    var d = moment.duration(compare);
+    console.log(d.asMinutes());
+    // const compare = times[]
+    if (d.asMinutes() <= 1) {
+      return {
+        message: "Created",
+      };
+    } else {
+      throw new Error("Vehicle not created");
     }
   } catch (error) {
     throw error;

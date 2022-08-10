@@ -7,6 +7,7 @@ import {
   checkPaymentStatus,
   makePayment,
   timelyData,
+  checkIfVehicleCreated,
 } from "../services/index.js";
 import { body, query, validationResult } from "express-validator";
 
@@ -94,6 +95,16 @@ router.post(
     }
   }
 );
+
+router.get("/checkStatus", async (req, res) => {
+  try {
+    res.json(await checkIfVehicleCreated());
+    // res.sendStatus(200);
+  } catch (e) {
+    console.log(e);
+    res.json({ error: e.message || err });
+  }
+});
 
 export default router;
 // module.exports = router;

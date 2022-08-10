@@ -51,8 +51,8 @@ export const updateAccountPayment = async (data) => {
   const { number_plate, amount } = data;
   try {
     await checkNumberPlate(number_plate);
-    const currentAmount = prisma.accounts.findFirst({
-      where: { email: email },
+    const currentAmount = await prisma.accounts.findFirst({
+      where: { number_plate: number_plate },
     });
     await prisma.accounts.update({
       data: {

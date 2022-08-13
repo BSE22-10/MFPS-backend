@@ -19,9 +19,10 @@ export const getFloors = async () => {
   return floors;
 };
 
-export const createFloor = async (no_of_slots) => {
+export const createFloor = async (no_of_slots, name) => {
   await prisma.floor.create({
     data: {
+      name: name,
       no_of_slots: no_of_slots,
     },
   });

@@ -71,7 +71,6 @@ router.put("/update", body("number_plate").isString(), async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    console.log(req.body.number_plate);
     res.json(await updateExitingVehicle(req.body.number_plate));
     // res.status(201).json({
     //   message: "Vehicle updated",
@@ -94,7 +93,6 @@ router.put(
       }
       const id = Number(req.query.id);
       const status = req.query.status === "true";
-      console.log(status);
       res.json(await updateSlotStatus(id, status));
       // res.status(201).json({
       //   message: "Vehicle updated",

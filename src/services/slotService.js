@@ -62,7 +62,6 @@ export const checkIfFloorIsFull = async (floor_id) => {
     },
   });
   var num = floor === null ? 0 : floor.no_of_slots;
-  console.log(slots);
   if (num === 0 || slots.length === 0) {
     console.log("Floor is full");
     return false;
@@ -235,7 +234,6 @@ export const numberOfCarsOnEachFloor = async () => {
         },
       },
     });
-    console.log(slots);
 
     slots.map((slot) => {
       data.push({
@@ -256,7 +254,7 @@ export const numberOfCarsOnEachFloor = async () => {
     data.map((info) => {
       if (existingIds.includes(info.floor_id)) {
         // console.log(existingIds.indexOf(info.id));
-        console.log(uniqueObjectsArray.indexOf(info.floor_id));
+        // console.log(uniqueObjectsArray.indexOf(info.floor_id));
         data.find((item, index) => {
           if (item.floor_id === info.floor_id) {
             data[index].count += 1;
@@ -267,7 +265,7 @@ export const numberOfCarsOnEachFloor = async () => {
         existingIds.push(info.floor_id);
       }
     });
-    console.log(uniqueObjectsArray);
+    // console.log(uniqueObjectsArray);
     return uniqueObjectsArray;
   } catch (error) {}
 };
@@ -386,6 +384,7 @@ export const getMonthlyData = async () => {
       count: 1,
     });
   });
+  console.log(data);
   //   console.log(data);
   return filterData(data, "time");
 };

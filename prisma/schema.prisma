@@ -12,6 +12,7 @@ datasource db {
 
 model Floor {
   id          Int           @id @default(autoincrement())
+  name        String        @default("Floor A")
   no_of_slots Int
   ParkingSlot ParkingSlot[]
 }

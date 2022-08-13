@@ -24,13 +24,14 @@ router.get("/", async (req, res) => {
 router.post(
   "/",
   body("no_of_slots", "Provide a valid number").isNumeric(),
+  body("name", "Provide a valid string").isString(),
   async (req, res) => {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
       }
-      await createFloor(req.body.no_of_slots);
+      await createFloor(req.body.no_of_slots, req.body.name);
       res.status(201).json({
         message: "Floor created",
       });
@@ -89,6 +90,7 @@ router.get(
 router.post(
   "/multipleSlots",
   body("number_of_slots", "Invalid number").isNumeric(),
+  body("name", "Invalid string").isString(),
   async (req, res) => {
     try {
       const errors = validationResult(req);
@@ -96,7 +98,10 @@ router.post(
         return res.status(400).json({ errors: errors.array() });
       }
       res.json(
-        await createFloorWithManySlots(Number(req.body.number_of_slots))
+        await createFloorWithManySlots(
+          Number(req.body.number_of_slots),
+          req.body.name
+        )
       );
     } catch (error) {
       res.status(400).json({ error: error.message || error });

@@ -46,6 +46,7 @@ router.post(
   }
 );
 
+//Main controller for exiting vehicles
 router.put("/update", body("number_plate").isString(), async (req, res) => {
   try {
     const errors = validationResult(req);

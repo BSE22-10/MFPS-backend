@@ -84,11 +84,12 @@ export const getSlotsForASpecificFloor = async (id) => {
   }
 };
 
-export const createFloorWithManySlots = async (number_of_slots) => {
+export const createFloorWithManySlots = async (number_of_slots, name) => {
   try {
     const floor = await prisma.floor.create({
       data: {
         no_of_slots: number_of_slots,
+        name: name,
       },
     });
     for (var i = 0; i < number_of_slots; i++) {

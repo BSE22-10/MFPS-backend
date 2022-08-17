@@ -43,8 +43,8 @@ router.post(
 
 router.put(
   "/update",
-  body("no_of_slots", "Provide a valid number").isNumeric(),
-  body("name", "Provide a valid string").isString(),
+  body("no_of_slots", "Provide a valid number").isNumeric().optional(),
+  body("name", "Provide a valid string").isString().optional(),
   query("id", "Provide a valid primary key").isNumeric(),
   async (req, res) => {
     try {
@@ -57,7 +57,7 @@ router.put(
         return res.status(400).json({ error: "Please provide an id" });
       } else {
         // [no_of_slots] = req.body;
-        res.json(await updateFloor(req.body)).status(201);
+        res.json(await updateFloor(Number(id), req.body)).status(201);
       }
       // res.status(201).json({
       //   message: "Vehicle updated",

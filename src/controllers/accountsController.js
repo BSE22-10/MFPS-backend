@@ -1,6 +1,7 @@
 import express from "express";
 import { body, query, validationResult } from "express-validator";
 import {
+  checkBalance,
   checkPlate,
   createAccount,
   getEmail,
@@ -29,7 +30,6 @@ router.post(
 
 router.get("/checkPlate", async (req, res) => {
   try {
-    console.log(req.body);
     //   const errors = validationResult(req);
     //   if (!errors.isEmpty()) {
     //     return res.status(400).json({ errors: errors.array() });
@@ -71,6 +71,22 @@ router.post(
     } catch (error) {
       console.log(error);
       res.json({ error: error.message || error });
+    }
+  }
+);
+
+router.post(
+  "/checkAcccountBalance",
+  body("number_plate", "Please provide a valid email").isString(),
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      return res.json(await checkBalance(req.body.number_plate));
+    } catch (error) {
+      res.status(400).json({ error: error.message || error });
     }
   }
 );

@@ -28,17 +28,41 @@ export const createFloor = async (no_of_slots, name) => {
   });
 };
 
-export const updateFloor = async (id, no_of_slots) => {
+export const updateFloor = async (id, body) => {
   if (await checkIfFloorExists(id)) {
     try {
+      const currentFloor = await prisma.floor.findFirst({ where: { id: id } });
+      var no_of_slots = body.no_of_slots;
+      body.no_of_slots !== undefined
+        ? body.no_of_slots
+        : currentFloor.no_of_slots;
+      console.log(no_of_slots);
+      var name = body.name !== undefined ? body.name : currentFloor.name;
       await prisma.floor.update({
         data: {
           no_of_slots: no_of_slots,
+          name: name,
         },
         where: {
           id: id,
         },
       });
+      await prisma.parkingSlot.deleteMany({
+        where: {
+          floor_id: id,
+        },
+      });
+      for (var i = 0; i < no_of_slots; i++) {
+        await prisma.parkingSlot.create({
+          data: {
+            floor: {
+              connect: {
+                id: id,
+              },
+            },
+          },
+        });
+      }
       return {
         message: "Floor updated",
       };
@@ -50,11 +74,13 @@ export const updateFloor = async (id, no_of_slots) => {
 
 export const deleteFloor = async (id) => {
   try {
-    await prisma.floor.delete({
-      where: {
-        id: id,
-      },
-    });
+    if (checkIfFloorExists(id)) {
+      await prisma.floor.delete({
+        where: {
+          id: id,
+        },
+      });
+    }
   } catch (error) {
     console.log(error);
   }

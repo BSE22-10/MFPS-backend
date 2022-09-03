@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+// import { jwtVerify } from "../middleware";
 const prisma = new PrismaClient();
 
 const checkIfFloorExists = async (id) => {

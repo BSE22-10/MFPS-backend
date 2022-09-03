@@ -28,17 +28,23 @@ router.post(
   }
 );
 
-router.get("/checkPlate", async (req, res) => {
-  try {
-    //   const errors = validationResult(req);
-    //   if (!errors.isEmpty()) {
-    //     return res.status(400).json({ errors: errors.array() });
-    //   }
-    return res.json(await checkPlate(req.body.number_plate));
-  } catch (error) {
-    console.log(error);
+router.post(
+  "/checkPlate",
+  // body("number_plate", "Provide a valid string").isString(),
+  async (req, res) => {
+    try {
+      // const errors = validationResult(req);
+      // if (!errors.isEmpty()) {
+      //   return res.status(400).json({ errors: errors.array() });
+      // }
+      console.log(req.body.number_plate);
+      return res.json(await checkPlate(req.body.number_plate));
+    } catch (error) {
+      console.log(error);
+      res.json({ error: error.message || error });
+    }
   }
-});
+);
 
 router.put(
   "/updatePayment",

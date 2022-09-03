@@ -32,13 +32,14 @@ export const createAccount = async (accountInfo) => {
 };
 
 export const checkPlate = async (number_plate) => {
+  // var { number_plate } = body;
   try {
     const plate = await prisma.accounts.findFirst({
       where: {
         number_plate: number_plate,
       },
     });
-
+    console.log(number_plate);
     if (!plate) {
       throw new Error("Plate does not exist");
     }
@@ -65,6 +66,29 @@ export const updateAccountPayment = async (data) => {
     return {
       message: "Account updated successfully",
     };
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const checkBalance = async (number_plate) => {
+  try {
+    const account = await prisma.accounts.findFirst({
+      where: {
+        number_plate: number_plate,
+      },
+    });
+    if (account) {
+      if (account.amountPaid <= 5) {
+        throw new Error("Please top up before you leave");
+      } else {
+        return {
+          message: "Account is ok",
+        };
+      }
+    } else {
+      throw new Error("Not registered");
+    }
   } catch (error) {
     throw error;
   }

@@ -6,6 +6,7 @@ import floorRoutes from "./src/controllers/floorController.js";
 import slotRoutes from "./src/controllers/slotController.js";
 import transactionRoutes from "./src/controllers/transactionsController.js";
 import AccountRoutes from "./src/controllers/accountsController.js";
+import AuthRoutes from "./src/controllers/authController.js";
 import cors from "cors";
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.use("/floors", floorRoutes);
 app.use("/slots", slotRoutes);
 app.use("/transactions", transactionRoutes);
 app.use("/accounts", AccountRoutes);
+app.use("/auth", AuthRoutes);
 
 app.get("/", (req, res) => {
   res.send("Multifloor parking system");

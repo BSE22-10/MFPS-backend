@@ -11,26 +11,30 @@ import { body, query, validationResult } from "express-validator";
 
 const router = express.Router();
 
+//End point for getting all the floors
 router.get("/", async (req, res) => {
   try {
     res.json(await getFloors());
-    // res.sendStatus(200);
   } catch (error) {
     console.log(error);
     res.json({ error: error.message || error });
   }
 });
 
+//Endpoint for creating floors
 router.post(
   "/",
+  // validation of input
   body("no_of_slots", "Provide a valid number").isNumeric(),
   body("name", "Provide a valid string").isString(),
   async (req, res) => {
     try {
       const errors = validationResult(req);
+      //Throw the errors from validation
       if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
       }
+      //Call create floor method from service
       await createFloor(req.body.no_of_slots, req.body.name);
       res.status(201).json({
         message: "Floor created",
@@ -69,6 +73,7 @@ router.put(
   }
 );
 
+//Get the details of a specific floor
 router.get(
   "/singleFloor",
   query("floor_id", "Provide a valid number").isNumeric(),
@@ -86,6 +91,7 @@ router.get(
   }
 );
 
+//Create many slots for a floor
 router.post(
   "/multipleSlots",
   body("number_of_slots", "Invalid number").isNumeric(),
@@ -96,6 +102,7 @@ router.post(
       if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
       }
+      //Returning response from calling createFloorWithManySlots method
       res.json(
         await createFloorWithManySlots(
           Number(req.body.number_of_slots),
@@ -108,6 +115,7 @@ router.post(
   }
 );
 
+//End point for deleting a floor
 router.delete(
   "/delete",
   query("floor_id", "Invalid number").isNumeric(),

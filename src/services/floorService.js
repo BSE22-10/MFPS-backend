@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 // import { jwtVerify } from "../middleware";
 const prisma = new PrismaClient();
 
+//Check if a floor exists
 const checkIfFloorExists = async (id) => {
   const floor = await prisma.floor.findFirst({
     where: {
@@ -15,11 +16,13 @@ const checkIfFloorExists = async (id) => {
   }
 };
 
+//Gettting all the floors
 export const getFloors = async () => {
   const floors = await prisma.floor.findMany({});
   return floors;
 };
 
+//Creating a new floor
 export const createFloor = async (no_of_slots, name) => {
   await prisma.floor.create({
     data: {
@@ -29,6 +32,7 @@ export const createFloor = async (no_of_slots, name) => {
   });
 };
 
+//Updating a floor
 export const updateFloor = async (id, body) => {
   if (await checkIfFloorExists(id)) {
     try {
@@ -39,6 +43,7 @@ export const updateFloor = async (id, body) => {
         : currentFloor.no_of_slots;
       console.log(no_of_slots);
       var name = body.name !== undefined ? body.name : currentFloor.name;
+      //Update the floor information
       await prisma.floor.update({
         data: {
           no_of_slots: no_of_slots,
@@ -48,11 +53,13 @@ export const updateFloor = async (id, body) => {
           id: id,
         },
       });
+      //Delete all the slots attached to the floor
       await prisma.parkingSlot.deleteMany({
         where: {
           floor_id: id,
         },
       });
+      //Create the slots for the floor
       for (var i = 0; i < no_of_slots; i++) {
         await prisma.parkingSlot.create({
           data: {
@@ -64,6 +71,7 @@ export const updateFloor = async (id, body) => {
           },
         });
       }
+      //Return message
       return {
         message: "Floor updated",
       };
@@ -73,6 +81,7 @@ export const updateFloor = async (id, body) => {
   }
 };
 
+//Delete a floor
 export const deleteFloor = async (id) => {
   try {
     if (checkIfFloorExists(id)) {
@@ -87,6 +96,7 @@ export const deleteFloor = async (id) => {
   }
 };
 
+//Get the slots for a specific floor
 export const getSlotsForASpecificFloor = async (id) => {
   try {
     const slots = await prisma.parkingSlot.findMany({
@@ -111,6 +121,7 @@ export const getSlotsForASpecificFloor = async (id) => {
   }
 };
 
+//Creating multiple parking slots per floor
 export const createFloorWithManySlots = async (number_of_slots, name) => {
   try {
     const floor = await prisma.floor.create({

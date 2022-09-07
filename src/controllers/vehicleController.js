@@ -13,6 +13,8 @@ import { body, query, validationResult } from "express-validator";
 
 const router = express.Router();
 const validator = {};
+
+//End point for getting all vehicles
 router.get("/", async (req, res) => {
   try {
     res.json(await getVehicles());
@@ -23,6 +25,7 @@ router.get("/", async (req, res) => {
   }
 });
 
+//End point for creating a vehicle
 router.post(
   "/",
   body("number_plate", "Invalid number").isString(),
@@ -80,6 +83,7 @@ router.get(
   }
 );
 
+//End point for registering payment for a vehicle
 router.post(
   "/makePayment",
   body("number_plate", "Invalid number").isString(),
@@ -97,6 +101,7 @@ router.post(
   }
 );
 
+//End point for checking the status of a slot
 router.get("/checkStatus", async (req, res) => {
   try {
     res.json(await checkIfVehicleCreated());

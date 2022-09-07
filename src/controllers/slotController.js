@@ -14,6 +14,7 @@ import { body, query, validationResult } from "express-validator";
 
 const router = express.Router();
 
+//End point for getting all slots
 router.get("/", async (req, res) => {
   try {
     res.json(await getSlots());
@@ -23,6 +24,7 @@ router.get("/", async (req, res) => {
   }
 });
 
+//End point for creating a slot
 router.post(
   "/",
   query("id", "Invalid id").isNumeric(),
@@ -43,6 +45,7 @@ router.post(
   }
 );
 
+//Creating multiple slots
 router.post(
   "/mutlipleSlots",
   query("id", "Invalid id").isNumeric(),
@@ -65,6 +68,7 @@ router.post(
   }
 );
 
+//End point for updating exiting vehicle
 router.put("/update", body("number_plate").isString(), async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -81,6 +85,7 @@ router.put("/update", body("number_plate").isString(), async (req, res) => {
   }
 });
 
+//Updating slot status
 router.put(
   "/updateStatus",
   query("id").isNumeric(),
@@ -104,6 +109,7 @@ router.put(
   }
 );
 
+//Getting the number of cars on each floor
 router.get("/parkingSlots", async (req, res) => {
   try {
     res.json(await numberOfCarsOnEachFloor());
@@ -113,6 +119,7 @@ router.get("/parkingSlots", async (req, res) => {
   }
 });
 
+//End point for getting timely data
 router.get("/timelyData", query("duration").isString(), async (req, res) => {
   try {
     const errors = validationResult(req);

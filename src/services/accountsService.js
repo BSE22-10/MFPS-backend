@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
+//Checking if the new number plate exists in the database
 const checkNumberPlate = async (plate) => {
   const numberPlate = await prisma.accounts.findFirst({
     where: {
@@ -12,6 +13,7 @@ const checkNumberPlate = async (plate) => {
   }
 };
 
+//Creating an account
 export const createAccount = async (accountInfo) => {
   const { email, number_plate, amount } = accountInfo;
   try {
@@ -48,6 +50,7 @@ export const checkPlate = async (number_plate) => {
   }
 };
 
+//Logic for updating account payment status
 export const updateAccountPayment = async (data) => {
   const { number_plate, amount } = data;
   try {
@@ -71,6 +74,7 @@ export const updateAccountPayment = async (data) => {
   }
 };
 
+//Checking account balance
 export const checkBalance = async (number_plate) => {
   try {
     const account = await prisma.accounts.findFirst({

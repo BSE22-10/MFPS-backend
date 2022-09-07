@@ -18,6 +18,7 @@ const roundDown = (minute) => {
   return minute.startOf("hour").format("HH:mm a");
 };
 
+//Function for comparing 2 values
 function compare(a, b) {
   // Use toUpperCase() to ignore character casing
   const bandA = a.time;
@@ -31,6 +32,7 @@ function compare(a, b) {
   return comparison;
 }
 
+//Code for creating an array of dictionary values basing on data and unique elements
 const filterData = async (data, uniqueElement) => {
   var existingIds = [];
   const uniqueObjectsArray = [];
@@ -270,6 +272,7 @@ export const numberOfCarsOnEachFloor = async () => {
   } catch (error) {}
 };
 
+//Method for getting monthly data
 export const timelyData = async () => {
   try {
     var data = [];
@@ -301,6 +304,7 @@ export const timelyData = async () => {
         count: 1,
       });
     });
+    //Creating an array of dictionary values for timely data
     data.map((info) => {
       if (existingIds.includes(info.time)) {
         data.find((item, index) => {
@@ -318,7 +322,8 @@ export const timelyData = async () => {
     const dates = uniqueObjectsArray.sort(
       (objA, objB) => objA.time < objB.time
     );
-    // console.log(dates);
+
+    //Sorting the times in ascending order
     new Date(uniqueObjectsArray.sort(compare));
     return uniqueObjectsArray;
   } catch (error) {
@@ -326,13 +331,14 @@ export const timelyData = async () => {
   }
 };
 
+//Function for getting weekly data
 export const getWeeklyData = async () => {
   var data = [];
   var existingIds = [];
   const uniqueObjectsArray = [];
   var m = moment("2022-07-19T07:55:20.802Z");
 
-  //   console.log(m.day());
+  //Gettting all the slot statuses
   const slots = await prisma.slotStatus.findMany({
     where: {
       status: true,
@@ -349,7 +355,7 @@ export const getWeeklyData = async () => {
       createdAt: "asc",
     },
   });
-  console.log(slots);
+  // console.log(slots);
   slots.map((slot) => {
     data.push({
       time: moment(slot.createdAt).format("dddd"),
@@ -363,7 +369,6 @@ export const getMonthlyData = async () => {
   var data = [];
   var m = moment("2022-07-19T07:55:20.802Z");
 
-  //   console.log(m.day());
   const slots = await prisma.slotStatus.findMany({
     where: {
       status: true,

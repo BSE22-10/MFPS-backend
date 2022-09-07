@@ -9,7 +9,7 @@ import {
 } from "../services/index.js";
 
 const router = express.Router();
-
+//End point for creating an account
 router.post(
   "/",
   body("email", "Provide a valid email").isEmail(),
@@ -28,6 +28,7 @@ router.post(
   }
 );
 
+//Checking if an email exists
 router.post(
   "/checkPlate",
   // body("number_plate", "Provide a valid string").isString(),
@@ -46,6 +47,7 @@ router.post(
   }
 );
 
+//Update payment status
 router.put(
   "/updatePayment",
   body("number_plate", "Provide a valid plate").isString(),
@@ -81,6 +83,7 @@ router.post(
   }
 );
 
+//End point for checking account balance
 router.post(
   "/checkAcccountBalance",
   body("number_plate", "Please provide a valid email").isString(),

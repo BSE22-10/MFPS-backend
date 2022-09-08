@@ -8,6 +8,7 @@ import {
   makePayment,
   timelyData,
   checkIfVehicleCreated,
+  checkIfPaymentSuccessful,
 } from "../services/index.js";
 import { body, query, validationResult } from "express-validator";
 
@@ -41,7 +42,7 @@ router.post(
         message: "Vehicle created",
       });
     } catch (error) {
-      console.log(error);
+      res.status(400).json({error: error.message || error })
     }
   }
 );
@@ -103,7 +104,17 @@ router.get("/checkStatus", async (req, res) => {
     // res.sendStatus(200);
   } catch (e) {
     console.log(e);
-    res.json({ error: e.message || err });
+    res.status(400).json({ error: e.message || err });
+  }
+});
+
+router.get("/checkPaymentStatus", async (req, res) => {
+  try {
+    res.json(await checkIfPaymentSuccessful());
+    // res.sendStatus(200);
+  } catch (e) {
+    console.log(e);
+    res.status(400).json({ error: e.message || err });
   }
 });
 

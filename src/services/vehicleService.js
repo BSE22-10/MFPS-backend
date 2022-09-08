@@ -19,7 +19,8 @@ const getCurrentAmount = async (number_plate) => {
 async function makeBill(payment_id, arrivalTime, departingTime) {
   var hours = Math.abs(departingTime - arrivalTime) / 36e5;
   var minutes = (Math.abs(departingTime - arrivalTime) / (1000 * 60)) % 60;
-
+  console.log(hours)
+  console.log(Math.floor(minutes * 10))
   const payment = await prisma.payment.update({
     where: {
       id: payment_id,
@@ -41,6 +42,7 @@ async function updatePayment(number_plate) {
       },
       data: {
         status: true,
+        updatedAt: moment().format()
       },
     });
     return false;
@@ -132,8 +134,10 @@ export async function updateExitingVehicle(number_plate) {
       },
       data: {
         amountPaid: (await getCurrentAmount(number_plate)) - bill,
+        updatedAt: moment().format()
       },
     });
+    console.log(moment().format())
     const account = await prisma.accounts.findFirst({
       where: {
         number_plate: number_plate,
@@ -147,13 +151,14 @@ export async function updateExitingVehicle(number_plate) {
         pass: process.env.PASSWORD,
       },
     });
-
+    var email = await getEmail(number_plate);
+    console.log(email)
     if (account.amountPaid < 24) {
       var mailOptions = {
         from: "trevodex@gmail.com",
-        to: "angulotrevor@gmail.com",
+        to: email,
         subject: "Feedback",
-        html: `<html><body><p>Your account balance is low, please top up by visiting <a href="localhost:3000/homePayment">here</a></p></body></html>`,
+        html: `<html><body><p>Your account balance is low, please top up by visiting <a href="http://localhost:3000/homePayment">here</a></p></body></html>`,
       };
       transporter.sendMail(mailOptions, function (error, info) {
         if (error) {
@@ -165,9 +170,9 @@ export async function updateExitingVehicle(number_plate) {
     }
     var mailOptions = {
       from: "trevodex@gmail.com",
-      to: "angulotrevor@gmail.com",
+      to: email,
       subject: "Feedback",
-      html: `<html><body><p>${bill} was deducted from your account today</p></body></html>`,
+      html: `<html><body><p>${bill} UGX was deducted from your account today</p></body></html>`,
     };
     transporter.sendMail(mailOptions, function (error, info) {
       if (error) {
@@ -267,6 +272,38 @@ export async function checkIfVehicleCreated() {
   }
 }
 
+export async function checkIfPaymentSuccessful() {
+  try {
+    var time = new Date();
+    const times = await prisma.payment.findMany({
+      where:{
+        status: true
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    const diff = Math.round(
+      (((time - times[0].arrival_time) % 86400000) % 3600000) / 60000
+    );
+    const compare = moment(time, "DD/MM/YYYY HH:mm:ss").diff(
+      moment(times[0].updatedAt, "DD/MM/YYYY HH:mm:ss")
+    );
+    var d = moment.duration(compare);
+    // console.log(d.asMinutes());
+    if (d.asMinutes() <= 1) {
+      return {
+        message: "Created",
+      };
+    } else {
+      throw new Error("Payment not successful");
+    }
+  } catch (error) {
+    throw error;
+  }
+}
+
 export async function getEmail(number_plate) {
   try {
     const driver = await prisma.accounts.findFirst({
@@ -274,13 +311,8 @@ export async function getEmail(number_plate) {
         number_plate: number_plate,
       },
     });
-    if (driver) {
-      return {
-        email: driver.email,
-      };
-    } else {
-      throw new Error("Number plate does not exist");
-    }
+    console.log(driver);
+    return driver.email;
   } catch (error) {
     throw error;
   }

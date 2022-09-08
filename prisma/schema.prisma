@@ -29,6 +29,7 @@ model Payment {
   id        Int       @id @default(autoincrement())
   bill      Int?
   status    Boolean   @default(false)
+  updatedAt DateTime  @default(now())
   createdAt DateTime  @default(now())
   Vehicle   Vehicle[]
 }
@@ -54,6 +55,7 @@ model Accounts {
   number_plate String    @unique()
   email        String
   amountPaid   Int
+  updatedAt DateTime @default(now())
   Vehicle      Vehicle[]
 }
 

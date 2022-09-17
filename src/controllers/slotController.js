@@ -9,6 +9,7 @@ import {
   getWeeklyData,
   getMonthlyData,
   createMultipleSlots,
+  getSlotsPerFloor,
 } from "../services/index.js";
 import { body, query, validationResult } from "express-validator";
 
@@ -133,6 +134,8 @@ router.get("/timelyData", query("duration").isString(), async (req, res) => {
       res.json(await getWeeklyData());
     } else if (filter === "monthly") {
       res.json(await getMonthlyData());
+    } else if (filter === "floor") {
+      res.json(await getSlotsPerFloor());
     }
   } catch (e) {
     console.log(e);

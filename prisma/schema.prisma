@@ -39,6 +39,7 @@ model Vehicle {
   number_plate   String
   arrival_time   DateTime  @default(now())
   departing_time DateTime?
+  updatedAt  DateTime @default(now())
 
   payment    Payment? @relation(fields: [payment_id], references: [id], onDelete: Cascade)
   payment_id Int?

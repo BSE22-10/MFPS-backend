@@ -20,13 +20,13 @@ async function makeBill(payment_id, arrivalTime, departingTime) {
   var hours = Math.abs(departingTime - arrivalTime) / 36e5;
   var minutes = (Math.abs(departingTime - arrivalTime) / (1000 * 60)) % 60;
   console.log(hours)
-  console.log(Math.floor(minutes * 10))
+  console.log(Math.floor(minutes))
   const payment = await prisma.payment.update({
     where: {
       id: payment_id,
     },
     data: {
-      bill: Math.floor(hours * 10),
+      bill: Math.floor(minutes),
     },
   });
   return payment.bill;
@@ -154,7 +154,7 @@ export async function updateExitingVehicle(number_plate) {
     var email = await getEmail(number_plate);
     console.log(email)
     if (account.amountPaid < 24) {
-      var mailOptions = {
+    var mailOptions = {
         from: "trevodex@gmail.com",
         to: email,
         subject: "Feedback",
@@ -171,8 +171,15 @@ export async function updateExitingVehicle(number_plate) {
     var mailOptions = {
       from: "trevodex@gmail.com",
       to: email,
-      subject: "Feedback",
-      html: `<html><body><p>${bill} UGX was deducted from your account today</p></body></html>`,
+      subject: "Summary of payment",
+      html: `<html>
+      <body>
+      <p><b>RE : Your trip today</b></p>
+      <p>Thanks for parking with us.</p>
+      <p><b>${bill} UGX </b> was deducted from your account today</p>
+      <p>We hope you enjoyed using our premises.</p>
+      </body>
+      </html>`,
     };
     transporter.sendMail(mailOptions, function (error, info) {
       if (error) {

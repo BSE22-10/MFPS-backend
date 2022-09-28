@@ -6,6 +6,7 @@ import {
   updateFloor,
   getSlotsForASpecificFloor,
   createFloorWithManySlots,
+  checkIfParkingIsFull
 } from "../services/index.js";
 import { body, query, validationResult } from "express-validator";
 
@@ -129,6 +130,17 @@ router.delete(
       res.json(await deleteFloor(Number(req.query.floor_id)));
     } catch (error) {
       res.status(400).json({ error: error.message || error });
+    }
+  }
+);
+
+router.get(
+  "/checkFullParking",
+  async (req, res) => {
+    try {
+      res.json(await checkIfParkingIsFull());
+    } catch (error) {
+      console.log(error);
     }
   }
 );

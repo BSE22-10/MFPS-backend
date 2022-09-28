@@ -149,3 +149,57 @@ export const createFloorWithManySlots = async (number_of_slots, name) => {
     throw error;
   }
 };
+
+export const checkIfFloorIsFull = async (floor_id) => {
+  const slots = await prisma.parkingSlot.findMany({
+    where: {
+      floor_id: floor_id,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  
+    
+  });
+
+console.log(slots)
+
+  const floor = await prisma.floor.findFirst({
+    where: {
+      id: floor_id,
+    },
+  });
+  var num = floor === null ? 0 : floor.no_of_slots;
+  if (num === 0 || slots.length === 0) {
+    console.log("Floor is full");
+    return false;
+  } else if (num === slots.length) {
+    return true;
+    console.log("Yeah")
+  } else {
+    console.log("Not full yet");
+    return false;
+  }
+};
+
+//Check if parking is full
+export const checkIfParkingIsFull = async() => {
+  try {
+     var num = 0
+    const check = await prisma.floor.findMany({
+    })
+    var parking = await Promise.all(check.map(async floor => {
+       console.log(await checkIfFloorIsFull(floor.id))
+       if(await checkIfFloorIsFull(floor.id) == true){
+        ++num 
+       }
+       return num
+    }))
+    console.log(parking[0])
+    return ({
+      status: parking[0] == check.length
+    })
+  } catch (error) {
+    
+  }
+}

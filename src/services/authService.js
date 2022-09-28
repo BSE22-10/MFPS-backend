@@ -52,7 +52,6 @@ export const login = async (email, password) => {
             const token = jwt.sign({ email: email }, process.env.SECRET, {
               expiresIn: 1000,
             });
-            userToken = token;
             return {
               auth: true,
               token: token,

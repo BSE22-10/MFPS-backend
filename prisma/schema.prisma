@@ -22,6 +22,7 @@ model ParkingSlot {
 
   floor      Floor?       @relation(fields: [floor_id], references: [id], onDelete: Cascade)
   floor_id   Int?
+  isVehicle  Boolean      @default(false)
   SlotStatus SlotStatus[]
 }
 

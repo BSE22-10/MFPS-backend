@@ -100,7 +100,14 @@ router.put(
       }
       const id = Number(req.query.id);
       const status = req.query.status === "true";
-      res.json(await updateSlotStatus(id, status));
+      // res.json(await updateSlotStatus(id, status));
+      const val = await updateSlotStatus(id, status);
+      console.log(val.message);
+      if (val.message == "Parked") {
+        res.status(203).json({ message: "Parked" });
+      } else {
+        res.status(200).json({ message: "Left" });
+      }
       // res.status(201).json({
       //   message: "Vehicle updated",
       // });

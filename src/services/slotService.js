@@ -55,6 +55,11 @@ export const checkIfFloorIsFull = async (floor_id) => {
   const slots = await prisma.parkingSlot.findMany({
     where: {
       floor_id: floor_id,
+      SlotStatus: {
+        some: {
+          status: true,
+        },
+      },
     },
   });
 
@@ -73,6 +78,15 @@ export const checkIfFloorIsFull = async (floor_id) => {
     console.log("Not full yet");
     return false;
   }
+};
+
+const checkIfVehicleIsParked = async (slot_id) => {
+  const slot = await prisma.parkingSlot.findFirst({
+    where: {
+      id: slot_id,
+    },
+  });
+  return slot.isVehicle === true ? true : false;
 };
 
 export const checkIfSlotsAreValid = async (floor_id, number_of_slots) => {
@@ -175,7 +189,19 @@ export const createMultipleSlots = async (floor_id, number_of_slots) => {
   }
 };
 
+export const detectNumberPlate = async (slot_id, status) => {
+  await prisma.parkingSlot.update({
+    where: {
+      id: slot_id,
+    },
+    data: {
+      isVehicle: status,
+    },
+  });
+};
+
 export const updateSlotStatus = async (id, status) => {
+  console.log(await checkIfVehicleIsParked(id));
   if (await checkIfSlotExists(id)) {
     try {
       // await prisma.slotStatus.findFirst({
@@ -183,19 +209,40 @@ export const updateSlotStatus = async (id, status) => {
       //         slo
       //     }
       // })
-      await prisma.slotStatus.create({
-        data: {
-          status: status,
-          slot: {
-            connect: {
-              id: id,
+      if ((await checkIfVehicleIsParked(id)) && status == true) {
+        await prisma.slotStatus.create({
+          data: {
+            status: true,
+            slot: {
+              connect: {
+                id: id,
+              },
             },
           },
-        },
-      });
+        });
+      } else {
+        await prisma.parkingSlot.update({
+          where: {
+            id: id,
+          },
+          data: {
+            isVehicle: false,
+          },
+        });
+        await prisma.slotStatus.create({
+          data: {
+            status: false,
+            slot: {
+              connect: {
+                id: id,
+              },
+            },
+          },
+        });
+      }
       return {
         message:
-          status === true
+          status === true && (await checkIfVehicleIsParked(id))
             ? `Car has parked on slot ${id}`
             : `Car has left slot ${id}`,
       };
@@ -392,4 +439,36 @@ export const getMonthlyData = async () => {
   console.log(data);
   //   console.log(data);
   return filterData(data, "time");
+};
+
+export const getSlotsPerFloor = async () => {
+  var data = [];
+  const slots = await prisma.slotStatus.findMany({
+    where: {
+      status: true,
+    },
+    select: {
+      createdAt: true,
+      slot: {
+        select: {
+          floor_id: true,
+          floor: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  slots.map((slot) => {
+    data.push({
+      floor: slot.slot.floor.name,
+      count: 1,
+    });
+  });
+  console.log(data);
+  //   console.log(data);
+  return filterData(data, "floor");
 };

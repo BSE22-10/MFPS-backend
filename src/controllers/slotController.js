@@ -10,6 +10,7 @@ import {
   getMonthlyData,
   createMultipleSlots,
   getSlotsPerFloor,
+  detectNumberPlate,
 } from "../services/index.js";
 import { body, query, validationResult } from "express-validator";
 
@@ -103,6 +104,27 @@ router.put(
       // res.status(201).json({
       //   message: "Vehicle updated",
       // });
+    } catch (error) {
+      console.log(error);
+      res.status(400).json({ error: error.message || error });
+    }
+  }
+);
+
+//Detecting if a vehicle is parked on a slot
+router.put(
+  "/isVehicle",
+  query("id").isNumeric(),
+  query("status").isBoolean(),
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      const id = Number(req.query.id);
+      const status = req.query.status === "true";
+      res.json(await detectNumberPlate(id, status));
     } catch (error) {
       console.log(error);
       res.status(400).json({ error: error.message || error });

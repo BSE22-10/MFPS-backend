@@ -243,8 +243,8 @@ export const updateSlotStatus = async (id, status) => {
       return {
         message:
           status === true && (await checkIfVehicleIsParked(id))
-            ? `Car has parked on slot ${id}`
-            : `Car has left slot ${id}`,
+            ? "Parked"
+            : "Left",
       };
     } catch (error) {
       throw error;

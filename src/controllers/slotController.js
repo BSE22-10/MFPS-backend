@@ -9,6 +9,8 @@ import {
   getWeeklyData,
   getMonthlyData,
   createMultipleSlots,
+  getSlotsPerFloor,
+  detectNumberPlate,
 } from "../services/index.js";
 import { body, query, validationResult } from "express-validator";
 
@@ -98,10 +100,38 @@ router.put(
       }
       const id = Number(req.query.id);
       const status = req.query.status === "true";
-      res.json(await updateSlotStatus(id, status));
+      // res.json(await updateSlotStatus(id, status));
+      const val = await updateSlotStatus(id, status);
+      console.log(val.message);
+      if (val.message == "Parked") {
+        res.status(203).json({ message: "Parked" });
+      } else {
+        res.status(200).json({ message: "Left" });
+      }
       // res.status(201).json({
       //   message: "Vehicle updated",
       // });
+    } catch (error) {
+      console.log(error);
+      res.status(400).json({ error: error.message || error });
+    }
+  }
+);
+
+//Detecting if a vehicle is parked on a slot
+router.put(
+  "/isVehicle",
+  query("id").isNumeric(),
+  query("status").isBoolean(),
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      const id = Number(req.query.id);
+      const status = req.query.status === "true";
+      res.json(await detectNumberPlate(id, status));
     } catch (error) {
       console.log(error);
       res.status(400).json({ error: error.message || error });
@@ -133,6 +163,8 @@ router.get("/timelyData", query("duration").isString(), async (req, res) => {
       res.json(await getWeeklyData());
     } else if (filter === "monthly") {
       res.json(await getMonthlyData());
+    } else if (filter === "floor") {
+      res.json(await getSlotsPerFloor());
     }
   } catch (e) {
     console.log(e);

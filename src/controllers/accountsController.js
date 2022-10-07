@@ -42,7 +42,7 @@ router.post(
       return res.json(await checkPlate(req.body.number_plate));
     } catch (error) {
       console.log(error);
-      res.json({ error: error.message || error });
+      res.status(400).json({ error: error.message || error });
     }
   }
 );
